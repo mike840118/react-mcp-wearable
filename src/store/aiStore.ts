@@ -59,12 +59,11 @@ function fmtMetric(metric: MetricKey, n: number) {
 
 type State = {
   selectedUserId: string;
-  selectUser: (userId: string) => void;
-
   chat: ChatMessage[];
   toolCalls: ToolCall[];
   consentQueue: ConsentRequest[];
-
+  
+  selectUser: (userId: string) => void;
   sendUserMessage: (text: string) => Promise<void>;
   runTool: (server: ToolCall["server"], toolName: string, args: any) => Promise<any>;
   approveConsent: (toolCallId: string) => Promise<void>;
