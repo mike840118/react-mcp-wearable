@@ -34,14 +34,22 @@ jobs:
       - name: Build
         run: npm run build
 
-      # ✅ CRA 預設 build 資料夾；Vite 預設 dist 資料夾
-      # 這裡先用「自動判斷」：有 dist 就上傳 dist，否則上傳 build
+      - name: Detect build output folder
+        run: |
+          if [ -d "dist" ]; then
+            echo "OUTPUT_DIR=dist" >> $GITHUB_ENV
+          elif [ -d "build" ]; then
+            echo "OUTPUT_DIR=build" >> $GITHUB_ENV
+          else
+            echo "No dist/ or build/ directory found!"
+            ls -la
+            exit 1
+          fi
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: |
-            dist
-            build
+          path: ${{ env.OUTPUT_DIR }}
 
   deploy:
     environment:
