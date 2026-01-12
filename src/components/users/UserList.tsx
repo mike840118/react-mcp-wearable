@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { METRIC_KEYS, mockUsers } from "../../data/mock/users";
 import { useAIStore } from "../../store/aiStore";
 import { MetricBadge } from "./MetricBadge";

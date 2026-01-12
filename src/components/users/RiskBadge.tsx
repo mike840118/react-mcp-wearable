@@ -1,4 +1,3 @@
-import React from "react";
 import type { Level } from "../../data/mock/users";
 
 function styleByLevel(level: Level) {
