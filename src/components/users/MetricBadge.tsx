@@ -1,5 +1,5 @@
 import React from "react";
-import type { Level } from "../../data/mock/users";
+import type { Level, MetricKey } from "../../data/mock/users";
 
 function styleByLevel(level: Level) {
     switch (level) {
@@ -15,12 +15,27 @@ function styleByLevel(level: Level) {
     }
 }
 
-function label(level: Level) {
-    if (level === "NODATA") return "NO DATA";
-    return level;
+function fmt(metric: MetricKey, v: number | null | undefined) {
+    if (v == null) return "-";
+    if (metric === "TEMP") return `${v.toFixed(1)}°C`;
+    if (metric === "SPO2") return `${v.toFixed(0)}%`;
+    if (metric === "HR") return `${v.toFixed(0)}`;
+    if (metric === "HRV") return `${v.toFixed(0)}`;
+    if (metric === "STEP") return `${Math.round(v)}`;
+    if (metric === "KCKL") return `${Math.round(v)}`;
+    // HS / FTG
+    return `${v.toFixed(0)}`;
 }
 
-export function RiskBadge({ level, score }: { level: Level; score?: number | null }) {
+export function MetricBadge({
+    metric,
+    level,
+    value,
+}: {
+    metric: MetricKey;
+    level: Level;
+    value?: number | null;
+}) {
     const s = styleByLevel(level);
     return (
         <span
@@ -35,10 +50,10 @@ export function RiskBadge({ level, score }: { level: Level; score?: number | nul
                 fontWeight: 700,
                 whiteSpace: "nowrap",
             }}
-            title={score == null ? undefined : `score: ${score}`}
+            title={`${metric}${value == null ? "" : `: ${value}`}`}
         >
-            {label(level)}
-            {score == null ? null : <span style={{ opacity: 0.8 }}>{score}</span>}
+            <span style={{ opacity: 0.9 }}>{metric}</span>
+            <span style={{ fontWeight: 800 }}>{fmt(metric, value ?? null)}</span>
         </span>
     );
 }

@@ -42,12 +42,12 @@ export function ToolTimelinePanel() {
                             {isOpen && (
                                 <div style={{ marginTop: 10, fontSize: 12 }}>
                                     <div style={{ opacity: 0.7, marginBottom: 4 }}>args</div>
-                                    <pre style={{ margin: 0, padding: 10, background: "#fafafa", borderRadius: 10, overflow: "auto" }}>
+                                    <pre style={{ margin: 0, padding: 10, background: "black", borderRadius: 10, overflow: "auto" }}>
                                         {JSON.stringify(t.args, null, 2)}
                                     </pre>
 
                                     <div style={{ opacity: 0.7, margin: "10px 0 4px" }}>result</div>
-                                    <pre style={{ margin: 0, padding: 10, background: "#fafafa", borderRadius: 10, overflow: "auto" }}>
+                                    <pre style={{ margin: 0, padding: 10, background: "black", borderRadius: 10, overflow: "auto" }}>
                                         {JSON.stringify(t.result ?? (t.error ? { error: t.error } : null), null, 2)}
                                     </pre>
                                 </div>

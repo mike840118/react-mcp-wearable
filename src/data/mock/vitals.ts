@@ -1,41 +1,73 @@
-export type VitalPoint = {
-  t: number; // timestamp ms
-  hr: number;
-  hrv: number; // RMSSD (ms)
-};
+import type { MetricKey } from "./users";
+
+export type MetricPoint = { t: number; v: number };
 
 function clamp(n: number, min: number, max: number) {
   return Math.max(min, Math.min(max, n));
 }
 
-export function genVitalsSeries(userId: string, hours = 24): VitalPoint[] {
-  // 10 分鐘一點
-  const step = 10 * 60 * 1000;
+export function genMetricSeries(userId: string, metric: MetricKey, hours = 24): MetricPoint[] {
+  const step = 10 * 60 * 1000; // 10min
   const total = Math.floor((hours * 60) / 10);
   const now = Date.now();
 
-  // 用 userId 讓每個人趨勢不同
   const seed = Array.from(userId).reduce((a, c) => a + c.charCodeAt(0), 0);
-  const baseHr = 68 + (seed % 9); // 68~76
-  const baseHrv = 42 + (seed % 12); // 42~53
+  const wave = (t: number) => Math.sin((t / (1000 * 60 * 60)) * (Math.PI / 12)); // 24h cycle
 
-  const points: VitalPoint[] = [];
+  const points: MetricPoint[] = [];
   for (let i = total; i >= 0; i--) {
     const t = now - i * step;
+    const w = wave(t);
+    const n1 = Math.random() - 0.5;
 
-    // 模擬日內波動 + 隨機噪聲
-    const dayWave = Math.sin((t / (1000 * 60 * 60)) * (Math.PI / 12)); // 24h 週期
-    const noise1 = (Math.random() - 0.5) * 6;
-    const noise2 = (Math.random() - 0.5) * 8;
+    let v = 0;
+    const mike = userId === "mike" ? 1 : 0;
 
-    // 讓 mike 更偏「熱風險高」：HR略高、HRV略低
-    const mikeBoost = userId === "mike" ? 6 : 0;
-    const mikeHrvDown = userId === "mike" ? -6 : 0;
+    switch (metric) {
+      case "HR": {
+        const base = 68 + (seed % 9) + mike * 6;
+        v = clamp(base + w * 10 + n1 * 6, 45, 140);
+        break;
+      }
+      case "HRV": {
+        const base = 42 + (seed % 12) - mike * 6;
+        v = clamp(base - w * 8 + n1 * 10, 10, 120);
+        break;
+      }
+      case "SPO2": {
+        const base = 97 + (seed % 2);
+        v = clamp(base - Math.max(0, w) * 1.2 + n1 * 0.8 - mike * 0.5, 88, 100);
+        break;
+      }
+      case "TEMP": {
+        const base = 36.7 + ((seed % 5) * 0.05) + mike * 0.25;
+        v = clamp(base + Math.max(0, w) * 0.6 + n1 * 0.15, 35.5, 39.5);
+        break;
+      }
+      case "STEP": {
+        const base = 80 + (seed % 80);
+        v = clamp(base + Math.max(0, w) * 200 + n1 * 60 + mike * 40, 0, 800);
+        break;
+      }
+      case "KCKL": {
+        const base = 6 + (seed % 6);
+        v = clamp(base + Math.max(0, w) * 18 + n1 * 4 + mike * 2, 0, 60);
+        break;
+      }
+      case "HS": {
+        const base = 30 + (seed % 15) + mike * 25;
+        v = clamp(base + Math.max(0, w) * 35 + n1 * 8, 0, 100);
+        break;
+      }
+      case "FTG": {
+        const base = 40 + (seed % 15) + mike * 18;
+        v = clamp(base + (-w) * 25 + n1 * 10, 0, 100);
+        break;
+      }
+    }
 
-    const hr = clamp(baseHr + mikeBoost + dayWave * 8 + noise1, 50, 135);
-    const hrv = clamp(baseHrv + mikeHrvDown - dayWave * 6 + noise2, 10, 120);
-
-    points.push({ t, hr: Math.round(hr), hrv: Math.round(hrv) });
+    points.push({ t, v: Math.round(v * 10) / 10 });
   }
+
   return points;
 }
