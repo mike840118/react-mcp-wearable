@@ -62,7 +62,7 @@ type State = {
   chat: ChatMessage[];
   toolCalls: ToolCall[];
   consentQueue: ConsentRequest[];
-  
+
   selectUser: (userId: string) => void;
   sendUserMessage: (text: string) => Promise<void>;
   runTool: (server: ToolCall["server"], toolName: string, args: any) => Promise<any>;
@@ -81,7 +81,7 @@ export const useAIStore = create<State>((set, get) => ({
       content:
         "✅ 支援英文縮寫 + 中文口語查詢（可多個一起）\n\n" +
         "例：\n" +
-        "- 幫我看 HR\n" +
+        "- 幫我看1111 HR\n" +
         "- 幫我看 心率 跟 血氧\n" +
         "- 查 TEMP / HRV\n" +
         "- 幫我產出報表（會用 Markdown）\n" +
